@@ -28,3 +28,4 @@
 
 // GAME
 #define UPDATE_INTERVAL 25 // ms
+#define DEADZONE 0.2
