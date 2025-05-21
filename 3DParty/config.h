@@ -1,15 +1,16 @@
 #pragma once
 
 // PINS
-#define PIN_SDA 6
-#define PIN_SCL 5
+#define PIN_SDA 12
+#define PIN_SCL 13
 
 #define PIN_RGB_LED 21
-#define PIN_BUZZER 12
+#define PIN_BUZZER 10
 
-#define PIN_JOYSTICK_X 10
-#define PIN_JOYSTICK_Y 11
-#define PIN_JOYSTICK_BUTTON 9
+#define PIN_JOYSTICK_X 5
+#define PIN_JOYSTICK_Y 4
+
+#define PIN_JOYSTICK_BUTTON 6
 
 #define PIN_BUTTON_A 7
 #define PIN_BUTTON_B 8
@@ -23,9 +24,14 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define SCREEN_ADDRESS 0x3C
-#define SCREEN_ROTATION 2
+#define SCREEN_ROTATION 0
 
 
 // GAME
 #define UPDATE_INTERVAL 25 // ms
-#define DEADZONE 0.2
+#define DEADZONE 0.2 // Joystick deadzone
+#define JOYSTICK_X_ORIENTATION -1
+#define JOYSTICK_Y_ORIENTATION 1
+
+// CONSTANTS
+#define PI 3.14159265358979323846
