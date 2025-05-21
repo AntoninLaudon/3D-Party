@@ -4,13 +4,16 @@
 #include "config.h"
 #include "Games/IGame.hpp"
 #include "Games/Example.hpp"
+#include "Games/Breakout.hpp"
+#include "Menu.hpp"
 
-uint8_t broadcastAddress[] = MAC_ADDRESS;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 IGame *games[] = {
-    new ExampleGame(display)
+    new ExampleGame(display),
+    new BreakoutGame(display)
 };
+Menu menu(display, games);
 int currentGameIndex = 0;
 
 void setup() {
@@ -25,18 +28,23 @@ void setup() {
   delay(250);
   rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
   Serial.println("Starting...");
-  // Init RGB LED
-
 
   // Init OLED display
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) { 
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;) delay(1000); // Don't proceed, loop forever
-  }
+  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   display.setRotation(SCREEN_ROTATION);
 
-  // Init Game
-  games[currentGameIndex]->init();
+  // Init Games
+  for (int i = 0; i < sizeof(games) / sizeof(games[0]); i++) games[i]->init();
+  
+  currentGameIndex = menu.run();
+
+  Serial.print("Selected game: ");
+  Serial.print(currentGameIndex);
+  Serial.print(" -> ");
+  Serial.println(games[currentGameIndex]->getName().c_str());
+  Serial.print("Multiplayer: ");
+  Serial.println(games[currentGameIndex]->isNetworkGame() ? "Yes" : "No");
+  Serial.println("Starting game...");
 }
 
 void loop() {
