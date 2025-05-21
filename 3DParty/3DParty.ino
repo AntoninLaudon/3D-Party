@@ -38,7 +38,7 @@ void setup() {
   display.setRotation(SCREEN_ROTATION);
 
   // Init Games
-  for (int i = 0; i < sizeof(games) / sizeof(games[0]); i++) games[i]->init();
+  for (Game::IGame *game : games) game->init();
   
   currentGameIndex = menu.run();
 
