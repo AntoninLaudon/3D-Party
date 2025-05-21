@@ -5,7 +5,7 @@
 
 class Menu {
 public:
-    Menu(Adafruit_SSD1306 &display, IGame *games[]) : _display(display), _games(games) {
+    Menu(Adafruit_SSD1306 &display, Game::IGame *games[]) : _display(display), _games(games) {
         _numGames = 0;
         while (games[_numGames + 1] != nullptr) {
             _numGames++;
@@ -20,7 +20,7 @@ public:
             _update();
             _display.display();
 
-            if (digitalRead(PIN_BUTTON_A) == LOW) {
+            if (digitalRead(PIN_BUTTON_A) == HIGH) {
                 rgbLedWrite(PIN_RGB_LED, 0, 32, 32);
                 delay(100);
                 rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
@@ -31,7 +31,7 @@ public:
 private:
     void _update() {
         float jy = (analogRead(PIN_JOYSTICK_Y) - 2048) / -2048.0;
-        bool buttonB = digitalRead(PIN_BUTTON_B) == LOW;
+        bool buttonB = digitalRead(PIN_BUTTON_B) == HIGH;
 
         if (abs(jy) < 0.2) jy = 0;
 
@@ -79,7 +79,7 @@ private:
     }
 
     Adafruit_SSD1306 &_display;
-    IGame **_games;
+    Game::IGame **_games;
     int _numGames;
     float _currentChoice;
     float _scrollSpeed = 0.25;
