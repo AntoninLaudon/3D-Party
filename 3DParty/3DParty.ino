@@ -8,6 +8,7 @@
 #include "Games/Breakout.hpp"
 #include "Games/Shooter3D.hpp"
 #include "Menu.hpp"
+#include "network.hpp"
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -39,7 +40,7 @@ void setup() {
 
   // Init Games
   for (Game::IGame *game : games) game->init();
-  
+
   currentGameIndex = menu.run();
 
   Serial.print("Selected game: ");
