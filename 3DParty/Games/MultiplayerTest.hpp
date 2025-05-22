@@ -2,6 +2,7 @@
 
 #include "IGame.hpp"
 #include "tools.hpp"
+#include "CustomNetwork.hpp"
 
 namespace Game {
 
@@ -26,6 +27,7 @@ private:
 
     std::string *_dataInfoSend = new std::string[MULTIPLAYERTEST_MAX_DATA];
     std::string *_dataInfoReceive = new std::string[MULTIPLAYERTEST_MAX_DATA];
+    CustomNetwork::CustomNetworkManager _networkManager;
 };
 
 
@@ -37,6 +39,7 @@ void MultiplayerTest::init() {
     _isNetworkGame = true;
     _name = "Multi Test";
     _lastUpdate = millis();
+    _networkManager.setup();
 }
 
 void MultiplayerTest::step() {

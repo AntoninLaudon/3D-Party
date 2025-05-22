@@ -14,7 +14,7 @@ namespace Game {
 class IGame {
 public:
     IGame(Adafruit_SSD1306 &display) : _display(display) {}
-    
+
     virtual void init() = 0;
     virtual int run();
     virtual void step() = 0;
@@ -22,7 +22,7 @@ public:
     bool isNetworkGame() const;
 
     bool isRunning() const;
-    
+
 protected:
     void _retrieveInputs();
     virtual void _update(unsigned long deltaTime) = 0;

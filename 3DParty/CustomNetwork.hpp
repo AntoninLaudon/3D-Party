@@ -3,14 +3,14 @@
   3D PARTY
 */
 
-#ifndef NETWORK_HPP
-#define NETWORK_HPP
+#ifndef CUSTOM_NETWORK_HPP
+#define CUSTOM_NETWORK_HPP
 
 #include <ESP32_NOW.h>
 #include <ESP32_NOW_Serial.h>
 #include <WiFi.h>
 #include <cstddef>
-#include <esp_mac.h>  // For the MAC2STR and MACSTR macros
+#include <esp_mac.h> // For the MAC2STR and MACSTR macros
 #include <stdint.h>
 
 #include "esp32-hal.h"
@@ -52,6 +52,8 @@
 #define ESPNOW_EXAMPLE_PMK "pmk1234567890123"
 #define ESPNOW_EXAMPLE_LMK "lmk1234567890123"
 
+namespace CustomNetwork {
+
 /* Structs */
 
 // The following struct is used to send data to the peer device.
@@ -73,7 +75,7 @@ class ESP_NOW_Network_Peer : public ESP_NOW_Peer {
 public:
   ESP_NOW_Network_Peer(const uint8_t *mac_addr,
                        const uint8_t *lmk = (const uint8_t *)ESPNOW_EXAMPLE_LMK)
-    : ESP_NOW_Peer(mac_addr, ESPNOW_WIFI_CHANNEL, ESPNOW_WIFI_IFACE, lmk) {}
+      : ESP_NOW_Peer(mac_addr, ESPNOW_WIFI_CHANNEL, ESPNOW_WIFI_IFACE, lmk) {}
   ~ESP_NOW_Network_Peer() {}
 
   bool begin();
@@ -87,10 +89,10 @@ public:
 private:
 };
 
-class MyNetwork {
+class CustomNetworkManager {
 public:
-  MyNetwork();
-  ~MyNetwork();
+  CustomNetworkManager();
+  ~CustomNetworkManager();
 
   void setup();
   void update();
@@ -102,17 +104,32 @@ private:
   uint32_t calc_average();
   bool check_all_peers_ready();
   // Callbacks
-  static void register_new_peer(const esp_now_recv_info_t *info, const uint8_t *data,
-                         int len, void *arg);
+  static void register_new_peer(const esp_now_recv_info_t *info,
+                                const uint8_t *data, int len, void *arg);
 
 private:
   uint32_t version;
-  ESP_NOW_Network_Peer broadcast_peer;  // Register the broadcast peer (no encryption support for
-                                        // the broadcast address)
-  esp_now_data_t new_msg;  // Message that will be sent to the peers
-
+  ESP_NOW_Network_Peer
+      broadcast_peer; // Register the broadcast peer (no encryption support for
+                      // the broadcast address)
+  esp_now_data_t new_msg; // Message that will be sent to the peers
+  // TODO Add pool for in and out messages
 };
 
-class LobbyNetwork {};
+class LobbyProtocol {
+public:
+  LobbyProtocol(CustomNetworkManager &networkManager)
+      : _networkManager(networkManager) {};
+  ~LobbyProtocol();
 
-#endif  // NETWORK_HPP
+  void setup();
+  void update();
+  void onReceive(const uint8_t *data, size_t len, bool broadcast);
+  void onSent(bool success);
+
+private:
+    CustomNetworkManager &_networkManager;
+};
+} // namespace CustomNetwork
+
+#endif // CUSTOM_NETWORK_HPP
