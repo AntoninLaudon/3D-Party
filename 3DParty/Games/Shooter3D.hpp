@@ -94,8 +94,8 @@ void Shooter3D::_update(unsigned long deltaTime) {
 
     if (_jy != 0) {
         Vector2f pn = {
-            _playerPos.x + 2*cos(_playerAngle * (PI/180)) * -_jy * SHOOTER_PLAYER_SPEED,
-            _playerPos.y + 2*sin(_playerAngle * (PI/180)) * -_jy * SHOOTER_PLAYER_SPEED
+            static_cast<float>(_playerPos.x + 2*cos(_playerAngle * (PI/180)) * -_jy * SHOOTER_PLAYER_SPEED),
+            static_cast<float>(_playerPos.y + 2*sin(_playerAngle * (PI/180)) * -_jy * SHOOTER_PLAYER_SPEED)
         };
         _playerPos = pn;
     }
@@ -122,7 +122,8 @@ void Shooter3D::_draw() {
         y4 = _playerPos.y + dov*sinf((_playerAngle + angle) * (PI/180));
 
         float dist = 100000.0f;
-        Vector2f pt_final = { NULL, NULL };
+        Vector2f pt_final = { 0.0f, 0.0f };
+        bool pt_final_set = false;
         Wall cur_wall;
         int cur_edge2pt;
 
@@ -152,13 +153,14 @@ void Shooter3D::_draw() {
             if (ptDist2 < dist) {
             dist = ptDist2;
             pt_final = pt;
+            pt_final_set = true;
             cur_wall = _walls[w];
             cur_edge2pt = dist2(pt, cur_wall.points[0]);
             }
         }
         }
 
-        if (pt_final.x != NULL) {
+        if (pt_final_set) {
 
         int length = 25000 / dist;
 

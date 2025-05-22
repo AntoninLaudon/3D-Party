@@ -24,14 +24,14 @@ int currentGameIndex = 0;
 void setup() {
   Serial.begin(115200);
   // Config
-  rgbLedWrite(PIN_RGB_LED, 32, 0, 0);
+  rgbLedWrite(PIN_RGB_LED_NEW, 32, 0, 0);
   pinMode(PIN_BUTTON_A, INPUT);
   pinMode(PIN_BUTTON_B, INPUT);
   pinMode(PIN_JOYSTICK_BUTTON, INPUT);
   Wire.begin(PIN_SDA, PIN_SCL);
 
   delay(250);
-  rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
+  rgbLedWrite(PIN_RGB_LED_NEW, 0, 0, 0);
   Serial.println("Starting...");
 
   // Init OLED display

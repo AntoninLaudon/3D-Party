@@ -21,9 +21,9 @@ public:
             _display.display();
 
             if (digitalRead(PIN_BUTTON_A) == HIGH) {
-                rgbLedWrite(PIN_RGB_LED, 0, 32, 32);
+                rgbLedWrite(PIN_RGB_LED_NEW, 0, 32, 32);
                 delay(100);
-                rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
+                rgbLedWrite(PIN_RGB_LED_NEW, 0, 0, 0);
                 return round(_currentChoice);
             }
         }

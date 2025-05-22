@@ -4,7 +4,7 @@
 #define PIN_SDA 12
 #define PIN_SCL 13
 
-#define PIN_RGB_LED 21
+#define PIN_RGB_LED_NEW 21
 #define PIN_BUZZER 10
 
 #define PIN_JOYSTICK_X 5
@@ -32,6 +32,3 @@
 #define DEADZONE 0.2 // Joystick deadzone
 #define JOYSTICK_X_ORIENTATION -1
 #define JOYSTICK_Y_ORIENTATION 1
-
-// CONSTANTS
-#define PI 3.14159265358979323846

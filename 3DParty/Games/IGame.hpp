@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cmath>
 #include <Adafruit_SSD1306.h>
 #include "config.h"
 
@@ -62,6 +63,7 @@ int IGame::run() {
     {
         step();
     }
+    return 0;
 }
 
 std::string IGame::getName() const {

@@ -97,7 +97,7 @@ void ComponentTest::_update(unsigned long deltaTime){
     if (_buttonB) _lum = (_lum + 1) % 100;
     int r, g, b;
     HSVtoRGB(_hue, 1.0, _lum / 100.0, r, g, b);
-    rgbLedWrite(PIN_RGB_LED, r, g, b);
+    rgbLedWrite(PIN_RGB_LED_NEW, r, g, b);
 }
 
 void ComponentTest::_draw() {
