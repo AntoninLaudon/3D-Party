@@ -34,13 +34,14 @@ void setup() {
   Serial.println("Starting...");
 
   // Init OLED display
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  display.setRotation(SCREEN_ROTATION);
+  // display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  // display.setRotation(SCREEN_ROTATION);
 
-  // Init Games
+  // // Init Games
   for (Game::IGame *game : games) game->init();
 
-  currentGameIndex = menu.run();
+  // currentGameIndex = menu.run();
+  currentGameIndex=1;
 
   Serial.print("Selected game: ");
   Serial.print(currentGameIndex);

@@ -3,6 +3,7 @@
 #include "IGame.hpp"
 #include "tools.hpp"
 #include "CustomNetwork.hpp"
+#include "../enum.hpp"
 
 namespace Game {
 
@@ -18,7 +19,7 @@ namespace Game {
 
 class MultiplayerTest : public IGame {
 public:
-    MultiplayerTest(Adafruit_SSD1306 &display) : IGame(display) {}
+    MultiplayerTest(Adafruit_SSD1306 &display) : IGame(display, ServiceId::TEST) {}
     void init() override;
     void step() override;
 private:
@@ -50,7 +51,7 @@ void MultiplayerTest::step() {
 
     _retrieveInputs();
     _update(deltaTime);
-    _draw();
+    // _draw();
 }
 
 void MultiplayerTest::_update(unsigned long deltaTime) {
@@ -68,7 +69,12 @@ void MultiplayerTest::_update(unsigned long deltaTime) {
         }
         Serial.print("Sending: ");
         Serial.println(_dataInfoSend[0].c_str());
-
+        _networkManager.pushOutputMessage(
+            (uint8_t *)_dataInfoSend[0].c_str(),
+            _dataInfoSend[0].length(),
+            ServiceId::TEST,
+            ConnectionType::TCP
+        );
         // TODO: Implement sending data
     }
 
@@ -82,6 +88,7 @@ void MultiplayerTest::_update(unsigned long deltaTime) {
         Serial.print("Receiving: ");
         Serial.println(_dataInfoReceive[0].c_str());
     }
+    _networkManager.update();
 }
 
 void MultiplayerTest::_draw() {

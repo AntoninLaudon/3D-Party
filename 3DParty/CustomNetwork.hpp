@@ -10,10 +10,13 @@
 #include <ESP32_NOW_Serial.h>
 #include <WiFi.h>
 #include <cstddef>
+#include <cstdint>
 #include <esp_mac.h> // For the MAC2STR and MACSTR macros
 #include <stdint.h>
+#include <vector>
 
 #include "esp32-hal.h"
+#include "enum.hpp"
 
 /* Definitions */
 
@@ -24,8 +27,6 @@
 #define ESPNOW_WIFI_CHANNEL 4
 
 #define ESPNOW_SEND_INTERVAL_MS 5
-
-#define ESPNOW_PEER_COUNT 5
 
 /*
     ESP-NOW uses the CCMP method, which is described in IEEE Std. 802.11-2012,
@@ -61,11 +62,17 @@ namespace CustomNetwork {
 // data is contiguous in the memory and without gaps). The maximum size of the
 // complete message is 250 bytes (ESP_NOW_MAX_DATA_LEN).
 typedef struct {
+  ServiceId service_id;
   uint32_t count;
-  uint32_t data;
-  bool ready;
-  char str[7];
+  uint8_t payload_len;
+  uint8_t payload[ESP_NOW_MAX_DATA_LEN]; // Payload of the message, can be up to 240 bytes
 } __attribute__((packed)) esp_now_data_t;
+
+typedef struct {
+  ConnectionType connection_type; // Type of connection (TCP, UDP, etc.)
+  esp_now_data_t packet; // Pointer to the packet data
+} message_t;
+
 
 // Class that inherits from ESP_NOW_Peer and implement the _onReceive and
 // _onSent methods. This class will be used to send messages to the peers. For
@@ -73,47 +80,49 @@ typedef struct {
 // the ESP32_NOW.h file.
 class ESP_NOW_Network_Peer : public ESP_NOW_Peer {
 public:
-  ESP_NOW_Network_Peer(const uint8_t *mac_addr,
-                       const uint8_t *lmk = (const uint8_t *)ESPNOW_EXAMPLE_LMK)
-      : ESP_NOW_Peer(mac_addr, ESPNOW_WIFI_CHANNEL, ESPNOW_WIFI_IFACE, lmk) {}
+  ESP_NOW_Network_Peer(const uint8_t *mac_addr, const uint8_t *lmk = (const uint8_t *)ESPNOW_EXAMPLE_LMK);
   ~ESP_NOW_Network_Peer() {}
 
   bool begin();
-  bool send_message(const uint8_t *data, size_t len);
+  bool sendPacket(esp_now_data_t packet);
+
+private:
+  // Callbacks
   void onReceive(const uint8_t *data, size_t len, bool broadcast);
   void onSent(bool success);
 
-public:
-  bool peer_ready = false;
-
 private:
+  uint32_t recv_packet_count = 0;
+  uint32_t sent_packet_count = 0;
+  std::vector<uint32_t> last_data; // Vector that will store the last 5 data received
 };
+
+// CustomNetworkManager class
+// This class will manage the ESP-NOW network, including the peers and the
+// messages to be sent and received.
 
 class CustomNetworkManager {
 public:
   CustomNetworkManager();
-  ~CustomNetworkManager();
+  ~CustomNetworkManager() {}
 
   void setup();
   void update();
-  void onReceive(const uint8_t *data, size_t len, bool broadcast);
-  void onSent(bool success);
+  void pushOutputMessage(uint8_t payload[], size_t payload_len, ServiceId service_id, ConnectionType connection_type);
+  uint8_t *popInputMessage();
 
 private:
-  void fail_reboot();
-  uint32_t calc_average();
-  bool check_all_peers_ready();
+  void applyOutputMessages();
+  bool sendMessage(message_t message);
+  void failReboot();
   // Callbacks
-  static void register_new_peer(const esp_now_recv_info_t *info,
-                                const uint8_t *data, int len, void *arg);
+  static void registerNewPeer(const esp_now_recv_info_t *info, const uint8_t *data, int len, void *arg);
 
 private:
-  uint32_t version;
-  ESP_NOW_Network_Peer
-      broadcast_peer; // Register the broadcast peer (no encryption support for
-                      // the broadcast address)
-  esp_now_data_t new_msg; // Message that will be sent to the peers
-  // TODO Add pool for in and out messages
+  ESP_NOW_Network_Peer broadcast_peer;  // Register the broadcast peer (no encryption support for the broadcast address)
+  ESP_NOW_Network_Peer *peer = nullptr;
+  std::vector<message_t> _input_messages; // Vector that will store the messages received
+  std::vector<message_t> _output_messages; // Vector that will store the messages to be sent
 };
 
 class LobbyProtocol {

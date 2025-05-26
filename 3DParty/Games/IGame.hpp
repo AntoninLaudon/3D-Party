@@ -4,6 +4,7 @@
 #include <cmath>
 #include <Adafruit_SSD1306.h>
 #include "config.h"
+#include "../enum.hpp"
 
 namespace Game {
 
@@ -13,7 +14,7 @@ namespace Game {
 
 class IGame {
 public:
-    IGame(Adafruit_SSD1306 &display) : _display(display) {}
+    IGame(Adafruit_SSD1306 &display, ServiceId service_id = ServiceId::NONE) : _display(display), _serviceId(service_id) {}
 
     virtual void init() = 0;
     virtual int run();
@@ -22,6 +23,7 @@ public:
     bool isNetworkGame() const;
 
     bool isRunning() const;
+    ServiceId getServiceId() const { return _serviceId; }
 
 protected:
     void _retrieveInputs();
@@ -51,6 +53,8 @@ private:
     bool _buttonBWasPressed = false;
     bool _jPressedWasPressed = false;
 
+    // Service ID for network communication
+    ServiceId _serviceId = ServiceId::NONE;
 };
 
 
