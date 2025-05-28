@@ -7,6 +7,16 @@
 namespace Game {
 
 // ################################################################
+// ####  GAME CONSTANTS  ###########################################
+// ################################################################
+
+enum GameReturnCode {
+    QUIT,
+    RESTART,
+    CONTINUE
+};
+
+// ################################################################
 // ######  IGAME CLASS DEFINITION  ################################
 // ################################################################
 
@@ -15,12 +25,11 @@ public:
     IGame(Adafruit_SSD1306 &display) : _display(display) {}
     
     virtual void init() = 0;
-    virtual int run();
     virtual void step() = 0;
+    GameReturnCode run();
     std::string getName() const;
     bool isNetworkGame() const;
-
-    bool isRunning() const;
+    GameReturnCode getGameState() const;
     
 protected:
     void _retrieveInputs();
@@ -30,7 +39,7 @@ protected:
     std::string _name;
     bool _isNetworkGame = false;
     unsigned long _lastUpdate = 0;
-    bool _isRunning = true;
+    GameReturnCode _gameState = CONTINUE;
 
     // Joystick and button states
     float _jx = 0;
@@ -57,11 +66,11 @@ private:
 // ######  IGAME CLASS IMPLEMENTATION  ############################
 // ################################################################
 
-int IGame::run() {
-    while (_isRunning)
-    {
+GameReturnCode IGame::run() {
+    while (_gameState == CONTINUE) {
         step();
     }
+    return _gameState;
 }
 
 std::string IGame::getName() const {
@@ -72,8 +81,8 @@ bool IGame::isNetworkGame() const {
     return _isNetworkGame;
 }
 
-bool IGame::isRunning() const {
-    return _isRunning;
+GameReturnCode IGame::getGameState() const {
+    return _gameState;
 }
 
 void IGame::_retrieveInputs() {
@@ -112,11 +121,5 @@ void IGame::_retrieveInputs() {
     _buttonAWasPressed = _buttonA;
     _buttonBWasPressed = _buttonB;
     _jPressedWasPressed = _jPressed;
-
-
-
-
-
 }
-
 } // namespace Game

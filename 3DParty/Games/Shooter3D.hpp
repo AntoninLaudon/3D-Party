@@ -222,4 +222,3 @@ void Shooter3D::_checkLine(int x, int half_length, boolean phase) {
 }
 
 } // namespace Game
-
