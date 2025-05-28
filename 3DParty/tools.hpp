@@ -30,3 +30,7 @@ float pow2(float x) {
 float dist2(Vector2f v, Vector2f u) {
     return pow2(v.x - u.x) + pow2(v.y - u.y);
 }
+
+int randint(int min, int max) {
+    return esp_random() % (max - min + 1) + min;
+}
