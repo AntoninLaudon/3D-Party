@@ -109,10 +109,10 @@ private:
 // ######  MINESWEEPER CLASS IMPLEMENTATION  ######################
 // ################################################################
 
-
 void Minesweeper::init() {
     _isNetworkGame = false;
     _name = "Minesweeper";
+    _NVSData.begin(_name.c_str(), false);
     _lastUpdate = millis();
     _gameState = CONTINUE;
 
@@ -222,13 +222,24 @@ void Minesweeper::_update(unsigned long deltaTime) {
         _display.clearDisplay();
         _display.setTextSize(3);
         _display.setTextColor(SSD1306_WHITE);
-        _display.setCursor(35, 0);
-        _display.print("YOU WIN!");
+        _display.setCursor(0, 0);
+        _display.print("YOU WIN");
         float seconds = (millis() - _startTime) / 1000.0;
         _display.setTextSize(1);
-        _display.setCursor(0, 40);
+        _display.setCursor(0, 30);
         _display.print("Time: ");
         _display.print(seconds);
+
+        if (_NVSData.getFloat("bestTime", 0.0) == 0.0 || seconds < _NVSData.getFloat("bestTime", 0.0)) {
+            _NVSData.putFloat("bestTime", seconds);
+            _display.setCursor(0, 50);
+            _display.print("New best time!");
+        } else {
+            _display.setCursor(0, 50);
+            _display.print("Best time: ");
+            _display.print(_NVSData.getFloat("bestTime", 0.0));
+        }
+
         _display.display();
         _buttonANew = false;
         _buttonBNew = false;

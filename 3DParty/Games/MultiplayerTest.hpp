@@ -24,8 +24,8 @@ private:
     void _update(unsigned long deltaTime) override;
     void _draw() override;
 
-    std::string *_dataInfoSend = new std::string[MULTIPLAYERTEST_MAX_DATA];
-    std::string *_dataInfoReceive = new std::string[MULTIPLAYERTEST_MAX_DATA];
+    String *_dataInfoSend = new String[MULTIPLAYERTEST_MAX_DATA];
+    String *_dataInfoReceive = new String[MULTIPLAYERTEST_MAX_DATA];
 };
 
 
@@ -51,6 +51,8 @@ void MultiplayerTest::step() {
 }
 
 void MultiplayerTest::_update(unsigned long deltaTime) {
+    Networking::GameProtocol &protocol = Networking::GameProtocol::get();
+    protocol.loop();
 
     // Send data
     if (_buttonANew || _buttonBNew) {
@@ -67,15 +69,19 @@ void MultiplayerTest::_update(unsigned long deltaTime) {
         Serial.println(_dataInfoSend[0].c_str());
 
         // TODO: Implement sending data
+        protocol.sendData(_dataInfoSend[0].c_str(), _dataInfoSend[0].length(), true);
     }
 
     // Receive data
-    if (false) { // TODO: Implement receiving data
+    Networking::GameProtocol::DataPacket pkt;
+    while (protocol.hasPacket()) {
+        protocol.getPacket(pkt);
+        
         for (int i = MULTIPLAYERTEST_MAX_DATA - 1; i > 0; i--) {
             _dataInfoReceive[i] = _dataInfoReceive[i - 1];
         }
-        // add the new data
-        _dataInfoReceive[0] = "DATA"; // TODO: Replace with actual data
+
+        _dataInfoReceive[0] = String((char*)pkt.data, pkt.len);
         Serial.print("Receiving: ");
         Serial.println(_dataInfoReceive[0].c_str());
     }

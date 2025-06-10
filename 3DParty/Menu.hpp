@@ -9,7 +9,7 @@
 
 class Menu {
 public:
-    Menu(Adafruit_SSD1306 &display, Game::IGame *games[]);
+    Menu(Adafruit_SSD1306 &display, Game::IGame *games[], int numGames);
 
     int run();
 private:
@@ -20,6 +20,8 @@ private:
     int _numGames;
     float _currentChoice;
     float _scrollSpeed = 0.25;
+
+    bool _buttonAWasPressed = false;
 };
 
 
@@ -27,22 +29,22 @@ private:
 // ######  MENU CLASS IMPLEMENTATION  #############################
 // ################################################################
 
-Menu::Menu(Adafruit_SSD1306 &display, Game::IGame *games[]) : _display(display), _games(games) {
-    _numGames = 0;
-    while (games[_numGames + 1] != nullptr) {
-        _numGames++;
-    }
-
+Menu::Menu(Adafruit_SSD1306 &display, Game::IGame *games[], int numGames) : _display(display), _games(games), _numGames(numGames) {
     _currentChoice = 0.0;
 }
 
 int Menu::run() {
+    bool buttonA = false;
+
     while (true) {
         _display.clearDisplay();
         _update();
         _display.display();
 
-        if (digitalRead(PIN_BUTTON_A) == HIGH) {
+        buttonA = digitalRead(PIN_BUTTON_A) == HIGH;
+
+        if (buttonA && !_buttonAWasPressed) {
+            _buttonAWasPressed = true;
             rgbLedWrite(PIN_RGB_LED, 0, 32, 32);
             tone(PIN_BUZZER, 500, 50);
             delay(100);
@@ -50,6 +52,7 @@ int Menu::run() {
             rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
             return round(_currentChoice);
         }
+        _buttonAWasPressed = buttonA;
     }
 }
 
@@ -59,7 +62,7 @@ void Menu::_update() {
 
     if (abs(jy) < 0.2) jy = 0;
 
-    float newChoice = constrain(_currentChoice + _scrollSpeed * jy, 0, _numGames - 1);
+    float newChoice = constrain(_currentChoice + _scrollSpeed * jy * (buttonB ? 3 : 1), 0, _numGames - 1);
     if (round(newChoice) != round(_currentChoice)) tone(PIN_BUZZER, 250, 10);
     _currentChoice = newChoice;
 
@@ -100,7 +103,5 @@ void Menu::_update() {
         _display.setCursor(SCREEN_WIDTH - 25, 8 + i * 20 - offset);
         _display.print(_games[i]->isNetworkGame() ? "M" : "S");
     }
-
-    if (buttonB) _currentChoice = 0.0;
 }
 

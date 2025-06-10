@@ -121,7 +121,17 @@ private:
 void Memory::init() {
     _isNetworkGame = false;
     _name = "Memory";
+    _NVSData.begin(_name.c_str(), false);
     _lastUpdate = millis();
+
+
+    // delete previous cards if any
+    if (_cards != nullptr) {
+        for (int i = 0; i < MEMORY_TILE_NBR_DESIGNS * 2; i++) {
+            delete _cards[i];
+        }
+        delete[] _cards;
+    }
 
     // Initialize cards
     _cards = new Card*[MEMORY_TILE_NBR_DESIGNS * 2];
@@ -218,22 +228,30 @@ void Memory::_update(unsigned long deltaTime) {
 
         if (tilesLeft == 0) {
             _display.clearDisplay();
-            _display.setTextSize(2);
-            _display.setCursor(0, 20);
-            _display.print("You Win!");
-            _display.setTextSize(1);
-            _display.setCursor(0, 40);
+            _display.setTextSize(3);
+            _display.setTextColor(SSD1306_WHITE);
+            _display.setCursor(0, 0);
+            _display.print("YOU WIN");
             float seconds = (millis() - _startTime) / 1000.0;
+            _display.setTextSize(1);
+            _display.setCursor(0, 30);
             _display.print("Time: ");
             _display.print(seconds);
+
+            if (_NVSData.getFloat("bestTime", 0.0) == 0.0 || seconds < _NVSData.getFloat("bestTime", 0.0)) {
+                _NVSData.putFloat("bestTime", seconds);
+                _display.setCursor(0, 50);
+                _display.print("New best time!");
+            } else {
+                _display.setCursor(0, 50);
+                _display.print("Best time: ");
+                _display.print(_NVSData.getFloat("bestTime", 0.0));
+            }
+
             _display.display();
             _buttonANew = false;
             _buttonBNew = false;
             while (!_buttonANew && !_buttonBNew) {
-                delay(100);
-                _retrieveInputs();
-            }
-            while (true) {
                 delay(100);
                 _retrieveInputs();
             }
