@@ -34,3 +34,11 @@ float dist2(Vector2f v, Vector2f u) {
 int randint(int min, int max) {
     return esp_random() % (max - min + 1) + min;
 }
+
+bool isMacBigger(const uint8_t mac1[6], const uint8_t mac2[6]) {
+    for (int i = 0; i < 6; i++) {
+        if (mac1[i] > mac2[i]) return true;
+        if (mac1[i] < mac2[i]) return false;
+    }
+    return false;
+}

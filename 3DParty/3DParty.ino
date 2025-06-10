@@ -1,56 +1,42 @@
 #include <Wire.h>
-#include <Adafruit_SSD1306.h>
-
-#include "esp_random.h"
+#include <WiFi.h>
+#include <esp_wifi.h>
 #include "config.h"
-#include "Games/IGame.hpp"
-#include "Games/ComponentTest.hpp"
-#include "Games/MultiplayerTest.hpp"
-#include "Games/Breakout.hpp"
-#include "Games/Shooter3D.hpp"
-#include "Games/Memory.hpp"
-#include "Games/Minesweeper.hpp"
-#include "Menu.hpp"
+#include "Core.hpp"
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-Game::IGame *games[] = {
-    new Game::ComponentTest(display),
-    new Game::MultiplayerTest(display),
-    new Game::Breakout(display),
-    new Game::Shooter3D(display),
-    new Game::Memory(display),
-    new Game::Minesweeper(display),
-};
-Menu menu(display, games);
-int currentGameIndex = 0;
+Core core;
 
 void setup() {
   Serial.begin(115200);
+
   // Config
-  rgbLedWrite(PIN_RGB_LED, 32, 0, 0);
+  rgbLedWrite(PIN_RGB_LED, 0, 32, 32);
   pinMode(PIN_BUTTON_A, INPUT);
   pinMode(PIN_BUTTON_B, INPUT);
   pinMode(PIN_JOYSTICK_BUTTON, INPUT);
-  Wire.begin(PIN_SDA, PIN_SCL);
 
+  Wire.begin(PIN_SDA, PIN_SCL);
+  WiFi.mode(WIFI_STA);
+  WiFi.STA.begin();
+  
   delay(250);
+  
   rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
   Serial.println("Starting...");
 
-  // Init OLED display
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  display.setRotation(SCREEN_ROTATION);
-
-  // Init Games
-  for (Game::IGame *game : games) game->init();
-
- currentGameIndex = menu.run();
+  if (!core.init()) {
+    Serial.println("Core initialization failed!");
+    while(1) {
+      rgbLedWrite(PIN_RGB_LED, 32, 0, 0);
+      delay(100);
+      rgbLedWrite(PIN_RGB_LED, 0, 0, 0);
+      delay(100);
+    };
+  }
+  core.launchMenu();
 }
 
 void loop() {
-  if (games[currentGameIndex]->run() == Game::QUIT) {
-    currentGameIndex = menu.run();
-  }
-  games[currentGameIndex]->init();
+  core.run();
+  delay(10);
 }
